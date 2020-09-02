@@ -1,39 +1,18 @@
+//Dependencies
 const { ApolloServer } = require("apollo-server");
-const gql = require("graphql-tag");
 const mongoose = require("mongoose");
 
-const Post = require("./models/Post.js");
+//Files
+const typeDefs = require("./graphql/typeDefs");
 const { MONGODB } = require("./config.js");
+const resolvers = require("./graphql/resolvers");
 
-const typeDefs = gql`
-  type Post {
-    id: ID!
-    username: String!
-    body: String!
-    createdAt: String!
-  }
-  type Query {
-    getPosts: [Post]
-  }
-`;
-
-const resolvers = {
-  Query: {
-    async getPosts() {
-      try {
-        const posts = await Post.find();
-        return posts;
-      } catch (err) {
-        throw new Error(err);
-      }
-    },
-  },
-};
-
+//Creating Server
 const server = new ApolloServer({ typeDefs, resolvers });
 
+//Connecting Database
 mongoose
-  .connect(MONGODB, { useNewUrlParser: true })
+  .connect(MONGODB, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
     console.log("connected to database");
     return server.listen({ port: 4000 });
